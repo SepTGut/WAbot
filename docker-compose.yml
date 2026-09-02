@@ -1,0 +1,23 @@
+services:
+  wa-bot:
+    build: .
+    container_name: wa-bot
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+    env_file:
+      - .env
+    volumes:
+      # Sesi WhatsApp (PENTING: supaya tidak perlu scan QR ulang tiap restart)
+      - ./auth_info:/app/auth_info
+      # File data lokasi master
+      - ./data-titik-lokasi.xlsx:/app/data-titik-lokasi.xlsx
+      # File laporan & foto
+      - ./laporan-progress.xlsx:/app/laporan-progress.xlsx
+      - ./laporan-progress-cadangan.xlsx:/app/laporan-progress-cadangan.xlsx
+      - ./foto-laporan:/app/foto-laporan
+      # Sesi aktif & log
+      - ./sesi-aktif.json:/app/sesi-aktif.json
+      - ./nomor-terdaftar.json:/app/nomor-terdaftar.json
+      - ./logs:/app/logs
+

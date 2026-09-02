@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+auth_info
+foto-laporan
+laporan-progress*.xlsx
+bot.log
+*.log
+sesi-aktif.json
+nomor-terdaftar.json
+.env

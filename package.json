@@ -5,7 +5,16 @@
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop wa-bot",
+    "pm2:restart": "pm2 restart wa-bot",
+    "pm2:logs": "pm2 logs wa-bot",
+    "pm2:status": "pm2 status",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:build": "docker compose build"
   },
   "dependencies": {
     "@whiskeysockets/baileys": "^6.7.9",

@@ -68,12 +68,57 @@ npm install
 
 ## 5. Jalankan bot
 
+### Opsi A: Mode Manual (Terminal biasa)
 ```bash
 npm start
 ```
-
 Akan muncul **QR code** di terminal. Scan menggunakan WhatsApp di HP:
 `Setelan > Perangkat Tertaut > Tautkan Perangkat`
+
+### Opsi B: Mode Background / Production dengan PM2
+PM2 membuat bot tetap berjalan di background secara otomatis, me-restart otomatis jika crash, dan bisa jalan saat PC/server menyala.
+
+1. **Install PM2 secara global (cukup sekali):**
+   ```bash
+   npm install -g pm2
+   ```
+2. **Jalankan bot via PM2:**
+   ```bash
+   npm run pm2:start
+   ```
+3. **Perintah penting PM2:**
+   ```bash
+   npm run pm2:logs     # Lihat log real-time & scan QR code (jika sesi baru)
+   npm run pm2:status   # Cek status bot (online/offline)
+   npm run pm2:restart  # Restart bot
+   npm run pm2:stop     # Matikan bot
+   ```
+4. *(Opsional)* **Simpan agar otomatis start saat komputer/server reboot:**
+   ```bash
+   pm2 save
+   pm2 startup
+   ```
+
+### Opsi C: Mode Container dengan Docker
+Docker mengisolasi bot dan memudahkan deployment ke VPS/Server Linux maupun Windows.
+
+1. **Jalankan container:**
+   ```bash
+   docker compose up -d
+   ```
+2. **Lihat log & scan QR code (jika belum login):**
+   ```bash
+   docker compose logs -f
+   ```
+3. **Perintah penting Docker:**
+   ```bash
+   docker compose ps        # Cek status container
+   docker compose restart   # Restart bot
+   docker compose down      # Hentikan bot
+   docker compose build     # Rebuild image setelah ada perubahan kode
+   ```
+
+> **Catatan Volume Docker:** Semua data penting (`auth_info/`, `laporan-progress.xlsx`, `foto-laporan/`, `bot.log`) dimount langsung ke folder lokal di luar container, jadi sesi login dan data laporan tetap aman dan tidak akan hilang saat container di-restart/di-update.
 
 Gunakan nomor WhatsApp khusus untuk CS (**jangan nomor pribadi utama**), karena ini
 memakai library tidak resmi (Baileys) yang berisiko kecil kena pembatasan dari WhatsApp

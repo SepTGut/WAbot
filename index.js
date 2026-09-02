@@ -33,13 +33,29 @@ const path = require("path");
 const ExcelJS = require("exceljs");
 
 // ====== LOGGING KE FILE ======
-// Semua console.log/error otomatis juga tercatat ke bot.log supaya log tidak hilang
-// saat terminal ditutup. File di-rotate manual (hapus/rename kalau sudah terlalu besar).
-const LOG_FILE_PATH = "bot.log";
-const logStream = fs.createWriteStream(LOG_FILE_PATH, { flags: "a" }); // append mode
+// Semua console.log/error otomatis juga tercatat ke logs/bot.log supaya log tidak hilang
+// saat terminal ditutup.
 const _consoleLog = console.log.bind(console);
 const _consoleError = console.error.bind(console);
 const _consoleWarn = console.warn.bind(console);
+
+let logStream = null;
+try {
+  const LOGS_DIR = "logs";
+  if (!fs.existsSync(LOGS_DIR)) {
+    try { fs.mkdirSync(LOGS_DIR, { recursive: true }); } catch { }
+  }
+  const targetLogPath = (fs.existsSync(LOGS_DIR) && fs.statSync(LOGS_DIR).isDirectory())
+    ? path.join(LOGS_DIR, "bot.log")
+    : "bot-app.log";
+
+  logStream = fs.createWriteStream(targetLogPath, { flags: "a" });
+  logStream.on("error", (err) => {
+    _consoleWarn("⚠️ Log file stream error:", err.message);
+  });
+} catch (err) {
+  _consoleWarn("⚠️ Inisialisasi file log dilewati:", err.message);
+}
 
 function stempelWaktu() {
   return new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" });
@@ -47,15 +63,21 @@ function stempelWaktu() {
 
 console.log = (...args) => {
   _consoleLog(...args);
-  logStream.write(`[${stempelWaktu()}] [INFO] ${args.map(String).join(" ")}\n`);
+  if (logStream && logStream.writable) {
+    try { logStream.write(`[${stempelWaktu()}] [INFO] ${args.map(String).join(" ")}\n`); } catch { }
+  }
 };
 console.error = (...args) => {
   _consoleError(...args);
-  logStream.write(`[${stempelWaktu()}] [ERROR] ${args.map(String).join(" ")}\n`);
+  if (logStream && logStream.writable) {
+    try { logStream.write(`[${stempelWaktu()}] [ERROR] ${args.map(String).join(" ")}\n`); } catch { }
+  }
 };
 console.warn = (...args) => {
   _consoleWarn(...args);
-  logStream.write(`[${stempelWaktu()}] [WARN] ${args.map(String).join(" ")}\n`);
+  if (logStream && logStream.writable) {
+    try { logStream.write(`[${stempelWaktu()}] [WARN] ${args.map(String).join(" ")}\n`); } catch { }
+  }
 };
 
 // ====== KONFIGURASI ======
@@ -435,7 +457,7 @@ async function simpanLaporan(data) {
   const berhasilKeGoogle = await kirimKeGoogleSheets(barisBaru, data.namaFileFoto);
   if (berhasilKeGoogle) {
     // Tetap simpan salinan ke Excel lokal juga sebagai cadangan, tapi tidak masalah kalau gagal
-    tulisSatuLaporanKeExcel(LAPORAN_FILE_PATH, barisBaruExcel, data.namaFileFoto).catch(() => {});
+    tulisSatuLaporanKeExcel(LAPORAN_FILE_PATH, barisBaruExcel, data.namaFileFoto).catch(() => { });
     return { berhasil: true, tujuan: "google" };
   }
 
@@ -925,7 +947,11 @@ function matikanBotDenganAman(sinyal) {
     console.error("   ⚠️  Gagal menutup koneksi:", err.message);
   }
   // Tutup log stream sebelum keluar
-  logStream.end(() => process.exit(0));
+  if (logStream && typeof logStream.end === "function") {
+    logStream.end(() => process.exit(0));
+  } else {
+    process.exit(0);
+  }
 }
 process.on("SIGINT", () => matikanBotDenganAman("SIGINT"));
 process.on("SIGTERM", () => matikanBotDenganAman("SIGTERM"));

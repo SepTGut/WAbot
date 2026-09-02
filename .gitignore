@@ -3,7 +3,8 @@ auth_info/
 .env
 *.log
 bot.log
-*.log
+logs/
+.clasp.json
 
 # Data laporan & foto (mengandung data pribadi pekerja)
 laporan-progress*.xlsx

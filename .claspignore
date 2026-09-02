@@ -1,0 +1,18 @@
+# Ignore all node & bot files so clasp only pushes Apps Script (.gs / .js) files
+node_modules/**
+auth_info/**
+foto-laporan/**
+logs/**
+*.xlsx
+*.json
+!appsscript.json
+.env*
+.dockerignore
+.gitignore
+Dockerfile
+docker-compose.yml
+ecosystem.config.js
+README.md
+bot.log
+WAbot-package.zip
+index.js
